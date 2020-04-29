@@ -396,7 +396,12 @@ namespace Dapper
             if (Debugger.IsAttached)
                 Trace.WriteLine(String.Format("Insert: {0}", sb));
 
-            var r = connection.Query(sb.ToString(), entityToInsert, transaction, true, commandTimeout);
+            // added the condition around and initialized r, so expected one insert happens instead of two ORACLE
+            IEnumerable<dynamic> r = new List<dynamic>();
+            if (_dialect != Dialect.Oracle)
+            {
+                r = connection.Query(sb.ToString(), entityToInsert, transaction, true, commandTimeout);
+            }
 
             if (keytype == typeof(Guid) || keyHasPredefinedValue)
             {
